@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Student/Supervisor Management</title>
+</head>
+
+<body>
+
+    <header>
+        <h1>Student & Supervisor Management System</h1>
+    </header>
+
+    <main class="container">
+        <!-- Students Section -->
+        <section class="card">
+            <h2>Students</h2>
+            <button id="openAddStudentModal" class="btn btn-primary">+ Add Student</button>
+            <div class="table-container">
+                <table id="studentTable" class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Registration No</th>
+                            <th>Mobile</th>
+                            <th>Supervisors</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Student data will be populated here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Supervisors Section -->
+        <section class="card">
+            <h2>Supervisors</h2>
+            <button id="openAddSupervisorModal" class="btn btn-primary">+ Add Supervisor</button>
+            <div class="table-container">
+                <table id="supervisorTable" class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Employee ID</th>
+                            <th>Mobile</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Supervisor data will be populated here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Global Message/Confirm Modal -->
+    <div id="messageModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" data-close="messageModal">&times;</span>
+            <p id="messageText"></p>
+            <div id="confirmButtons" class="btn-group" style="display: none;">
+                <button id="confirmYes" class="btn btn-primary">Yes</button>
+                <button id="confirmNo" class="btn btn-secondary">No</button>
+            </div>
+            <button id="alertClose" class="btn btn-secondary" style="display: none;">OK</button>
+        </div>
+    </div>
+
+    <!-- Add Student Modal -->
+    <div id="AddStudentModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" data-close="AddStudentModal">&times;</span>
+            <h2>Add New Student</h2>
+            <form id="addStudentForm" class="data-form">
+                <label for="studentName">Name:</label>
+                <input type="text" id="studentName" name="name" required>
+
+                <label for="studentRegNo">Registration No:</label>
+                <input type="text" id="studentRegNo" name="registration_no" required>
+
+                <label for="studentMobile">Mobile:</label>
+                <input type="text" id="studentMobile" name="mobile_number" required>
+
+                <label for="supervisorSelect">Supervisor(s):</label>
+                <select name="supervisor_ids" id="supervisorSelect" multiple required>
+                    <!-- Options will be populated by JavaScript -->
+                </select>
+                <small>Hold Ctrl/Cmd to select multiple supervisors</small>
+
+                <button type="submit" class="btn btn-primary">Create</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Update Student Modal -->
+    <div id="UpdateStudentModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" data-close="UpdateStudentModal">&times;</span>
+            <h2>Update Student</h2>
+            <form id="updateStudentForm" class="data-form">
+                <input type="hidden" name="id">
+
+                <label for="updateStudentName">Name:</label>
+                <input type="text" id="updateStudentName" name="name">
+
+                <label for="updateStudentRegNo">Registration No:</label>
+                <input type="text" id="updateStudentRegNo" name="registration_no">
+
+                <label for="updateStudentMobile">Mobile:</label>
+                <input type="text" id="updateStudentMobile" name="mobile_number">
+
+                <label for="updateSupervisorIDs">Supervisor IDs (comma-separated):</label>
+                <input type="text" id="updateSupervisorIDs" name="supervisor_ids">
+
+                <button type="submit" class="btn btn-primary">Update</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Supervisor Modal -->
+    <div id="AddSupervisorModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" data-close="AddSupervisorModal">&times;</span>
+            <h2>Add New Supervisor</h2>
+            <form id="addSupervisorForm" class="data-form">
+                <label for="supervisorName">Name:</label>
+                <input type="text" id="supervisorName" name="name" required>
+
+                <label for="supervisorEmpID">Employee ID:</label>
+                <input type="text" id="supervisorEmpID" name="employee_id" required>
+
+                <label for="supervisorMobile">Mobile:</label>
+                <input type="text" id="supervisorMobile" name="mobile_number" required>
+
+                <button type="submit" class="btn btn-primary">Create</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Update Supervisor Modal -->
+    <div id="UpdateSupervisorModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" data-close="UpdateSupervisorModal">&times;</span>
+            <h2>Update Supervisor</h2>
+            <form id="updateSupervisorForm" class="data-form">
+                <input type="hidden" name="id">
+
+                <label for="updateSupervisorName">Name:</label>
+                <input type="text" id="updateSupervisorName" name="name">
+
+                <label for="updateSupervisorEmpID">Employee ID:</label>
+                <input type="text" id="updateSupervisorEmpID" name="employee_id">
+
+                <label for="updateSupervisorMobile">Mobile:</label>
+                <input type="text" id="updateSupervisorMobile" name="mobile_number">
+
+                <button type="submit" class="btn btn-primary">Update</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

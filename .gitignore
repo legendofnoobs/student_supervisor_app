@@ -1,0 +1,35 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.dll
+*.db
+
+# Virtual environment
+.venv/
+venv/
+env/
+ENV/
+myvenv/
+*/.venv/*
+*/venv/*
+*/env/*
+*/ENV/*
+*/myvenv/*
+
+# Install packages
+node_modules/
+jspm_packages/
+
+# Distributions / packaging
+dist/
+build/
+sdist/
+*.egg-info/
+*.wheel
+.python-version
+.project
+*.swp
+*.DS_Store
