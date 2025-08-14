@@ -1,8 +1,16 @@
 import { useState, useEffect } from 'react';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link,
+} from 'react-router-dom';
 import { fetchStudents, fetchSupervisors, createStudent, updateStudent, deleteStudent, createSupervisor, updateSupervisor, deleteSupervisor } from './api/api';
 import StudentTable from './components/StudentTable';
 import SupervisorTable from './components/SupervisorTable';
 import { AddStudentModal, UpdateStudentModal, AddSupervisorModal, UpdateSupervisorModal, MessageModal } from './components/Modals';
+import StudentDetailsPage from './components/StudentDetailsPage';
+import SupervisorDetailsPage from './components/SupervisorDetailsPage';
 
 // Define the types for our data structures
 export interface Student {
@@ -10,8 +18,7 @@ export interface Student {
   name: string;
   registration_no: string;
   mobile_number: string;
-  supervisor_ids: number[];
-  supervisors?: Supervisor[]; // Optional, will be populated on fetch
+  supervisors: Supervisor[];
 }
 
 export interface Supervisor {
@@ -24,7 +31,6 @@ export interface Supervisor {
 export default function App() {
   const [students, setStudents] = useState<Student[]>([]);
   const [supervisors, setSupervisors] = useState<Supervisor[]>([]);
-  const [loading, setLoading] = useState(true);
   const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -53,29 +59,21 @@ export default function App() {
 
   // Fetch all data from the API
   const refreshAllData = async () => {
-    setLoading(true);
     try {
       const studentsData = await fetchStudents();
       const supervisorsData = await fetchSupervisors();
-
-      const studentsWithSupervisors = studentsData.map((student: Student) => ({
-        ...student,
-        supervisors: student.supervisors || [], // Use the supervisors array from the API
-      }));
-
       setSupervisors(supervisorsData);
-      setStudents(studentsWithSupervisors);
+      setStudents(studentsData);
     } catch (error) {
       console.error('Error during data refresh:', error);
       showMessage('Failed to refresh data. Please check the server connection.');
-    } finally {
-      setLoading(false);
     }
   };
 
   useEffect(() => {
     refreshAllData();
-  }, []); // The empty array ensures this runs only once on initial render
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // --- Student Handlers ---
   const handleAddStudent = async (studentData: Omit<Student, 'id' | 'supervisors'>) => {
@@ -153,103 +151,143 @@ export default function App() {
     });
   };
 
+  // New component for the Dashboard
+  const Dashboard = () => {
+    return (
+      <div className="container mx-auto p-4">
+        <h1 className="text-3xl font-bold mb-4">Dashboard</h1>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-white shadow rounded p-4">
+            <h2 className="text-xl font-semibold mb-2">Total Students</h2>
+            <p className="text-2xl">{students.length}</p>
+          </div>
+          <div className="bg-white shadow rounded p-4">
+            <h2 className="text-xl font-semibold mb-2">Total Supervisors</h2>
+            <p className="text-2xl">{supervisors.length}</p>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // New component for the Student List Page
+  const StudentListPage = () => {
+    return (
+      <div className="container mx-auto p-4">
+        <h1 className="text-3xl font-bold mb-4">Student List</h1>
+        <button
+          onClick={() => {
+            setIsAddStudentModalOpen(true);
+          }}
+          className="px-6 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition duration-300 mb-6"
+        >
+          + Add Student
+        </button>
+        <StudentTable
+          students={students}
+          onEdit={(student) => {
+            setCurrentStudent(student);
+            setIsUpdateStudentModalOpen(true);
+          }}
+          onDelete={handleDeleteStudent}
+        />
+      </div>
+    );
+  };
+
+  // New component for the Supervisor List Page
+  const SupervisorListPage = () => {
+    return (
+      <div className="container mx-auto p-4">
+        <h1 className="text-3xl font-bold mb-4">Supervisor List</h1>
+        <button
+          onClick={() => setIsAddSupervisorModalOpen(true)}
+          className="px-6 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition duration-300 mb-6"
+        >
+          + Add Supervisor
+        </button>
+        <SupervisorTable
+          supervisors={supervisors}
+          onEdit={(supervisor) => {
+            setCurrentSupervisor(supervisor); // Set the supervisor to be edited
+            setIsUpdateSupervisorModalOpen(true);
+          }}
+          onDelete={handleDeleteSupervisor}
+        />
+      </div>
+    );
+  };
+
   return (
-    <div className="font-sans bg-gray-50 text-gray-800 antialiased leading-normal tracking-wide min-h-screen p-8">
-      <header className="text-center mb-8">
-        <h1 className="text-4xl font-extrabold text-gray-800">Student & Supervisor Management System</h1>
-      </header>
-      <main className="container mx-auto flex flex-col gap-8">
-        {loading ? (
-          <div className="w-full text-center p-10 text-gray-500">Loading data...</div>
-        ) : (
-          <>
-            <section className="flex-1 bg-white p-6 rounded-xl shadow-lg">
-              <h2 className="text-2xl font-bold border-b-2 border-blue-500 pb-2 mb-4 text-gray-700">Students</h2>
-              <button
-                onClick={() => {
-                  setIsAddStudentModalOpen(true);
-                }}
-                className="px-6 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition duration-300 mb-6"
-              >
-                + Add Student
-              </button>
-              <StudentTable
-                students={students}
-                onEdit={(student) => {
-                  setCurrentStudent(student);
-                  setIsUpdateStudentModalOpen(true);
-                }}
-                onDelete={handleDeleteStudent}
-              />
-            </section>
+    <Router>
+      <div className="font-sans bg-gray-50 text-gray-800 antialiased leading-normal tracking-wide min-h-screen p-8">
+        <header className="text-center mb-8">
+          <h1 className="text-4xl font-extrabold text-gray-800">Student & Supervisor Management System</h1>
+          <nav className="mt-4">
+            <ul className="flex justify-center space-x-4">
+              <li><Link to="/" className="text-blue-500 hover:text-blue-700">Dashboard</Link></li>
+              <li><Link to="/students" className="text-blue-500 hover:text-blue-700">Students</Link></li>
+              <li><Link to="/supervisors" className="text-blue-500 hover:text-blue-700">Supervisors</Link></li>
+            </ul>
+          </nav>
+        </header>
+        <main className="container mx-auto">
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/students" element={<StudentListPage />} />
+            <Route path="/supervisors" element={<SupervisorListPage />} />
+            <Route path="/students/:id" element={<StudentDetailsPage />} />
+            <Route path="/supervisors/:id" element={<SupervisorDetailsPage />} />
+          </Routes>
+        </main>
 
-            <section className="flex-1 bg-white p-6 rounded-xl shadow-lg">
-              <h2 className="text-2xl font-bold border-b-2 border-blue-500 pb-2 mb-4 text-gray-700">Supervisors</h2>
-              <button
-                onClick={() => setIsAddSupervisorModalOpen(true)}
-                className="px-6 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition duration-300 mb-6"
-              >
-                + Add Supervisor
-              </button>
-              <SupervisorTable
-                supervisors={supervisors}
-                onEdit={(supervisor) => {
-                  setCurrentSupervisor(supervisor);
-                  setIsUpdateSupervisorModalOpen(true);
-                }}
-                onDelete={handleDeleteSupervisor}
-              />
-            </section>
-          </>
-        )}
-      </main>
-
-      {/* Modals */}
-      <MessageModal
-        isOpen={isMessageModalOpen || isConfirmModalOpen}
-        onClose={() => {
-          setIsMessageModalOpen(false);
-          setIsConfirmModalOpen(false);
-          setConfirmCallback(null);
-        }}
-        message={message}
-        isConfirm={isConfirmModalOpen}
-        onConfirm={() => {
-          if (confirmCallback) {
-            confirmCallback();
-          }
-          setIsConfirmModalOpen(false);
-          setConfirmCallback(null);
-        }}
-      />
-      <AddStudentModal
-        isOpen={isAddStudentModalOpen}
-        onClose={() => setIsAddStudentModalOpen(false)}
-        onSubmit={handleAddStudent}
-        supervisors={supervisors}
-      />
-      {currentStudent && (
-        <UpdateStudentModal
-          isOpen={isUpdateStudentModalOpen}
-          onClose={() => setIsUpdateStudentModalOpen(false)}
-          onSubmit={handleUpdateStudent}
-          student={currentStudent}
+        {/* Modals */}
+        <MessageModal
+          isOpen={isMessageModalOpen || isConfirmModalOpen}
+          onClose={() => {
+            setIsMessageModalOpen(false);
+            setIsConfirmModalOpen(false);
+            setConfirmCallback(null);
+          }}
+          message={message}
+          isConfirm={isConfirmModalOpen}
+          onConfirm={() => {
+            if (confirmCallback) {
+              confirmCallback();
+            }
+            setIsConfirmModalOpen(false);
+            setConfirmCallback(null);
+          }}
+        />
+        <AddStudentModal
+          isOpen={isAddStudentModalOpen}
+          onClose={() => setIsAddStudentModalOpen(false)}
+          onSubmit={handleAddStudent}
           supervisors={supervisors}
         />
-      )}
-      <AddSupervisorModal
-        isOpen={isAddSupervisorModalOpen}
-        onClose={() => setIsAddSupervisorModalOpen(false)}
-        onSubmit={handleAddSupervisor}
-      />
-      {currentSupervisor && (
-        <UpdateSupervisorModal
-          isOpen={isUpdateSupervisorModalOpen}
-          onClose={() => setIsUpdateSupervisorModalOpen(false)}
-          onSubmit={handleUpdateSupervisor}
-          supervisor={currentSupervisor}
+        {currentStudent && (
+          <UpdateStudentModal
+            isOpen={isUpdateStudentModalOpen}
+            onClose={() => setIsUpdateStudentModalOpen(false)}
+            onSubmit={handleUpdateStudent}
+            student={currentStudent}
+            supervisors={supervisors}
+          />
+        )}
+        <AddSupervisorModal
+          isOpen={isAddSupervisorModalOpen}
+          onClose={() => setIsAddSupervisorModalOpen(false)}
+          onSubmit={handleAddSupervisor}
         />
-      )}
-    </div>
+        {currentSupervisor && (
+          <UpdateSupervisorModal
+            isOpen={isUpdateSupervisorModalOpen}
+            onClose={() => setIsUpdateSupervisorModalOpen(false)}
+            onSubmit={handleUpdateSupervisor}
+            supervisor={currentSupervisor}
+          />
+        )}
+      </div>
+    </Router>
   );
 }
