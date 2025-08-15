@@ -27,11 +27,11 @@ class StudentBase(BaseModel):
 class StudentCreate(StudentBase):
     supervisor_ids: List[int] = []
 
-class StudentUpdate(StudentBase):
+class StudentUpdate(BaseModel):
     name: Optional[str] = None
     registration_no: Optional[str] = None
     mobile_number: Optional[str] = None
-    supervisor_ids: Optional[List[int]] = []
+    supervisor_ids: Optional[List[int]] = None
 
 class Student(StudentBase):
     id: int

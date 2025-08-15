@@ -29,7 +29,7 @@ def update_student(db: Session, student_id: int, student: schemas.StudentUpdate)
     if db_student is None:
         return None
     for var, value in vars(student).items():
-        if value is not None:
+        if value is not None and var != "supervisor_ids":
             setattr(db_student, var, value)
 
     if student.supervisor_ids is not None:

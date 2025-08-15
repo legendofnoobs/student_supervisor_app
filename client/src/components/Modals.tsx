@@ -134,20 +134,20 @@ export function UpdateStudentModal({ isOpen, onClose, onSubmit, student, supervi
     const [name, setName] = useState(student.name);
     const [registration_no, setRegistrationNo] = useState(student.registration_no);
     const [mobile_number, setMobileNumber] = useState(student.mobile_number);
-    const [supervisor_ids, setSupervisorIds] = useState(student.supervisors);
+    const [supervisor_ids, setSupervisorIds] = useState<number[]>([]);
 
     useEffect(() => {
         if (student) {
             setName(student.name);
             setRegistrationNo(student.registration_no);
             setMobileNumber(student.mobile_number);
-            setSupervisorIds(student.supervisors);
+            setSupervisorIds(student.supervisors.map(supervisor => supervisor.id));
         }
     }, [student]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        onSubmit({ ...student, name, registration_no, mobile_number, supervisors });
+        onSubmit({ ...student, name, registration_no, mobile_number, supervisors: [], supervisor_ids: supervisor_ids });
     };
 
     if (!isOpen || !student) return null;
@@ -175,7 +175,7 @@ export function UpdateStudentModal({ isOpen, onClose, onSubmit, student, supervi
                         Supervisor(s):
                         <select
                             multiple
-                            value={((supervisor_ids ?? []).map(String))}
+                            value={supervisor_ids.map(String)}
                             onChange={e =>
                                 setSupervisorIds(
                                     Array.from(e.target.selectedOptions, option => Number(option.value))
