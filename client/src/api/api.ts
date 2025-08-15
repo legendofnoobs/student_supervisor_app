@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Student, Supervisor } from '../App';
 
 const API_BASE_URL = 'http://localhost:8000';
@@ -13,7 +14,15 @@ async function apiCallWithRetry<T>(url: string, options: RequestInit = {}, retri
         try {
             const response = await fetch(url, options);
             if (!response.ok) {
-                const errorText = await response.text();
+                let errorText = '';
+                try {
+                    // Attempt to parse JSON error response
+                    const errorJson = await response.json();
+                    errorText = errorJson.detail || JSON.stringify(errorJson); // Use detail if available, otherwise stringify the entire object
+                } catch (jsonError) {
+                    // If JSON parsing fails, fallback to text
+                    errorText = await response.text();
+                }
                 throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
             }
 
@@ -44,19 +53,27 @@ export const fetchStudents = async (): Promise<Student[]> => {
 };
 
 export const createStudent = async (student: Omit<Student, 'id' | 'supervisors'>) => {
-    return apiCallWithRetry(`${API_BASE_URL}/students/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(student),
-    });
+    try {
+        return await apiCallWithRetry(`${API_BASE_URL}/students/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(student),
+        });
+    } catch (error: any) { // add the type any
+        throw new Error(`Failed to create student: ${error.message}`);
+    }
 };
 
 export const updateStudent = async (id: number, student: Student) => {
-    return apiCallWithRetry(`${API_BASE_URL}/students/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(student),
-    });
+    try {
+        return await apiCallWithRetry(`${API_BASE_URL}/students/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(student),
+        });
+    }  catch (error: any) { // add the type any
+        throw new Error(`Failed to update student: ${error.message}`);
+    }
 };
 
 export const deleteStudent = async (id: number) => {
@@ -70,19 +87,27 @@ export const fetchSupervisors = async (): Promise<Supervisor[]> => {
 };
 
 export const createSupervisor = async (supervisor: Omit<Supervisor, 'id'>) => {
-    return apiCallWithRetry(`${API_BASE_URL}/supervisors/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(supervisor),
-    });
+    try {
+        return await apiCallWithRetry(`${API_BASE_URL}/supervisors/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(supervisor),
+        });
+    }  catch (error: any) { // add the type any
+        throw new Error(`Failed to create supervisor: ${error.message}`);
+    }
 };
 
 export const updateSupervisor = async (id: number, supervisor: Supervisor) => {
-    return apiCallWithRetry(`${API_BASE_URL}/supervisors/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(supervisor),
-    });
+    try {
+        return await apiCallWithRetry(`${API_BASE_URL}/supervisors/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(supervisor),
+        });
+    }  catch (error: any) { // add the type any
+        throw new Error(`Failed to update supervisor: ${error.message}`);
+    }
 };
 
 export const deleteSupervisor = async (id: number) => {

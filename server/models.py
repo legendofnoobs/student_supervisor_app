@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Table, ForeignKey
+from sqlalchemy import Column, Integer, String, Table, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship
 from database import Base
 
@@ -15,7 +15,7 @@ class Student(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
-    registration_no = Column(String, unique=True, nullable=False)
+    registration_no = Column(String, nullable=False)
     mobile_number = Column(String, nullable=False)
 
     supervisors = relationship(
@@ -23,13 +23,15 @@ class Student(Base):
         secondary=student_supervisor,
         back_populates="students"
     )
+    __table_args__ = (UniqueConstraint('registration_no', name='unique_registration_no'),UniqueConstraint('mobile_number', name='unique_student_mobile_number'))
+
 
 class Supervisor(Base):
     __tablename__ = "supervisors"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
-    employee_id = Column(String, unique=True, nullable=False)
+    employee_id = Column(String, nullable=False)
     mobile_number = Column(String, nullable=False)
 
     students = relationship(
@@ -37,3 +39,4 @@ class Supervisor(Base):
         secondary=student_supervisor,
         back_populates="supervisors"
     )
+    __table_args__ = (UniqueConstraint('employee_id', name='unique_employee_id'),UniqueConstraint('mobile_number', name='unique_supervisor_mobile_number'))

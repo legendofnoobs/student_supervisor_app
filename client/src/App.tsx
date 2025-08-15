@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import {
   BrowserRouter as Router,
@@ -19,6 +20,7 @@ export interface Student {
   registration_no: string;
   mobile_number: string;
   supervisors: Supervisor[];
+  supervisor_ids?: number[];
 }
 
 export interface Supervisor {
@@ -75,16 +77,15 @@ export default function App() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // --- Student Handlers ---
   const handleAddStudent = async (studentData: Omit<Student, 'id' | 'supervisors'>) => {
     try {
       await createStudent(studentData);
       showMessage('Student created successfully!');
       setIsAddStudentModalOpen(false);
       refreshAllData();
-    } catch (error) {
+    } catch (error: any) { // add the type any
       console.error('Error creating student:', error);
-      showMessage('Failed to create student.');
+      showMessage(error.message || 'Failed to create student.');
     }
   };
 
@@ -92,11 +93,11 @@ export default function App() {
     try {
       await updateStudent(studentData.id, studentData);
       showMessage('Student updated successfully!');
-      setIsUpdateStudentModalOpen(false);
+      setIsUpdateStudentModalOpen(false); // Only close on success
       refreshAllData();
-    } catch (error) {
+    } catch (error: any) { // add the type any
       console.error('Error updating student:', error);
-      showMessage('Failed to update student.');
+      showMessage(error.message || 'Failed to update student.');
     }
   };
 
@@ -120,9 +121,9 @@ export default function App() {
       showMessage('Supervisor created successfully!');
       setIsAddSupervisorModalOpen(false);
       refreshAllData();
-    } catch (error) {
+    } catch (error: any) { // add the type any
       console.error('Error creating supervisor:', error);
-      showMessage('Failed to create supervisor.');
+      showMessage(error.message || 'Failed to create supervisor.');
     }
   };
 
@@ -132,9 +133,9 @@ export default function App() {
       showMessage('Supervisor updated successfully!');
       setIsUpdateSupervisorModalOpen(false);
       refreshAllData();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating supervisor:', error);
-      showMessage('Failed to update supervisor.');
+      showMessage(error.message || 'Failed to update supervisor.');
     }
   };
 
