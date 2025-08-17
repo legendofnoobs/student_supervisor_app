@@ -3,6 +3,7 @@ import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -32,6 +33,9 @@ function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, 'preload.mjs'),
     },
+    width: 1270,
+    height: 720,
+    autoHideMenuBar : true
   })
 
   // Test active push message to Renderer-process.
